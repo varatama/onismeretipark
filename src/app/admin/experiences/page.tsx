@@ -80,9 +80,29 @@ function AdminExperiencesContent() {
                         <h2 className="font-bold text-gray-900">Könyvtár</h2>
                         <p className="text-xs text-stone-500">{experiences.length} élmény elérhető</p>
                     </div>
-                    <Button size="sm" onClick={createExperience} icon={<Plus size={16} />}>
-                        Új létrehozása
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button size="sm" onClick={createExperience} icon={<Plus size={16} />}>
+                            Új létrehozása
+                        </Button>
+                        <Button size="sm" onClick={async () => {
+                            const token = session?.access_token;
+                            const resp = await fetch('/api/admin/seed-content-v1', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                                }
+                            });
+                            if (resp.ok) {
+                                alert('Tartalomcsomag v1 betöltve.');
+                                await fetchExperiences();
+                            } else {
+                                const txt = await resp.text();
+                                console.error('Seed failed', txt);
+                                alert('Betöltés sikertelen');
+                            }
+                        }}>Tartalomcsomag v1 betöltése</Button>
+                    </div>
                 </div>
 
                 <ExperienceList initialExperiences={experiences} />

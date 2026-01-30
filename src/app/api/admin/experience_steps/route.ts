@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import type { Database } from '@/lib/database.types';
@@ -37,10 +38,9 @@ export async function POST(req: Request) {
         duration_sec: typeof body.duration_sec === 'number' ? body.duration_sec : Number(body.duration_sec) || 30,
     };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data, error } = await (supabaseAdmin as any)
+        const { data, error } = await supabaseAdmin
             .from('experience_steps')
-            .insert([payload])
+            .insert([payload] as any)
             .select()
             .maybeSingle();
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
@@ -66,7 +66,7 @@ export async function PUT(req: Request) {
         duration_sec: typeof body.duration_sec === 'number' ? body.duration_sec : (Number(body.duration_sec) || undefined),
     };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // Bypass narrow PostgREST generics by treating client as any for this update
         const { error } = await (supabaseAdmin as any)
             .from('experience_steps')
             .update(patch)
@@ -109,8 +109,7 @@ export async function PATCH(req: Request) {
         };
     }) as unknown as Database['public']['Tables']['experience_steps']['Insert'][];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from('experience_steps').upsert(items, { onConflict: 'id' });
+    const { error } = await supabaseAdmin.from('experience_steps').upsert(items as any, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
 }

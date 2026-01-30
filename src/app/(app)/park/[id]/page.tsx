@@ -11,6 +11,7 @@ import {
     Experience,
     ExperienceStep
 } from '@/lib/experiences';
+import { logEvent } from '@/lib/analytics';
 import { getOrSyncProfile } from '@/lib/user';
 import { ArrowLeft, ChevronRight, CheckCircle, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -71,6 +72,8 @@ export default function ExperiencePlayerPage({ params }: { params: { id: string 
                         current_step: 0,
                         completed: false
                     });
+                    // Audit: experience started
+                    await logEvent('experience_started', { experienceId: id });
                 }
             } catch (err) {
                 console.error("Failed to load experience:", err);
@@ -100,6 +103,7 @@ export default function ExperiencePlayerPage({ params }: { params: { id: string 
             });
 
             if (isCompleted) {
+                await logEvent('experience_completed', { experienceId: experience.id });
                 router.push('/park?status=completed');
             } else {
                 setCurrentStepIndex(nextIndex);

@@ -1,8 +1,33 @@
-'use client';
+"use client";
 
 import { Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageShell } from '@/components/ui/PageShell';
+import { supabase } from '@/lib/supabaseClient';
+import { useState } from 'react';
+
+async function startCheckout(setLoading: (v: boolean) => void) {
+    setLoading(true);
+    try {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        if (!token) throw new Error('Bejelentkezés szükséges');
+
+        const res = await fetch('/api/stripe/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+        });
+
+        const json = await res.json();
+        if (json?.url) {
+            window.location.href = json.url;
+            return;
+        }
+        throw new Error(json?.error || 'Hiba a fizetés indításakor');
+    } finally {
+        setLoading(false);
+    }
+}
 
 export default function SubscriptionPage() {
     const benefits = [
@@ -10,6 +35,9 @@ export default function SubscriptionPage() {
         "Heti élő online alkalmak",
         "Biztonságos, anonim részvétel",
     ];
+
+    const [loading, setLoading] = useState(false);
+    const stripeEnabled = Boolean(process.env.NEXT_PUBLIC_STRIPE_PRICE_ID && process.env.NEXT_PUBLIC_SITE_URL);
 
     return (
         <PageShell backHref="/park">
@@ -47,10 +75,18 @@ export default function SubscriptionPage() {
                 {/* CTA Buttons */}
                 <div className="w-full space-y-4 pt-10">
                     <motion.div whileTap={{ scale: 0.97 }}>
-                        <button className="w-full py-6 px-8 rounded-3xl bg-stone-900 text-white font-bold text-lg shadow-2xl shadow-stone-300 hover:bg-black transition-all">
-                            7 napos próba indítása
+                        <button
+                            onClick={() => startCheckout(setLoading)}
+                            disabled={loading || !stripeEnabled}
+                            className="w-full py-6 px-8 rounded-3xl bg-stone-900 text-white font-bold text-lg shadow-2xl shadow-stone-300 hover:bg-black transition-all disabled:opacity-60"
+                        >
+                            {loading ? 'Átirányítás a fizetéshez…' : stripeEnabled ? 'Előfizetek' : 'Előfizetés nem elérhető'}
                         </button>
                     </motion.div>
+
+                    {!stripeEnabled && (
+                        <p className="text-sm text-stone-500 text-center">Előfizetés jelenleg nem elérhető (Stripe nincs konfigurálva).</p>
+                    )}
 
                     <p className="text-[10px] text-stone-400 uppercase tracking-widest font-black">
                         Nincs kötöttség • Bármikor lemondható

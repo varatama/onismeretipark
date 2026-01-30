@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { headers } from 'next/headers';
-import { getStripe } from '@/lib/stripe';
+import { getStripe, STRIPE_ENABLED } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { logAudit } from '@/lib/audit';
 import Stripe from 'stripe';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -8,6 +10,13 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    if (!STRIPE_ENABLED) {
+        return new Response(JSON.stringify({ disabled: true }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' }
+        });
+    }
+
     if (!endpointSecret) {
         return new Response('Webhook secret missing', { status: 500 });
     }
@@ -19,7 +28,9 @@ export async function POST(req: Request) {
 
     try {
         if (!sig) throw new Error('No signature');
-        event = getStripe().webhooks.constructEvent(body, sig, endpointSecret);
+        const stripe = getStripe();
+        if (!stripe) throw new Error('Stripe not configured');
+        event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         console.error(`Webhook Error: ${msg}`);
@@ -38,16 +49,19 @@ export async function POST(req: Request) {
                 const subscriptionId = session.subscription as string;
 
                 if (userId) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    await (getSupabaseAdmin() as any)
+                    const supabaseAdmin = getSupabaseAdmin();
+                    const clientAny = supabaseAdmin as any;
+                    await clientAny
                         .from('profiles')
                         .update({
                             plan: 'premium',
                             stripe_customer_id: customerId,
                             stripe_subscription_id: subscriptionId,
                             plan_updated_at: new Date().toISOString()
-                        })
+                        } as any)
                         .eq('id', userId);
+
+                    await logAudit('checkout_success', { subscriptionId }, userId);
                 }
                 break;
             }
@@ -56,15 +70,17 @@ export async function POST(req: Request) {
                 // Subscription cancelled/expired
                 // We need to find the user by customer_id
                 const customerId = subscription.customer as string;
+                const supabaseAdmin = getSupabaseAdmin();
+                const clientAny = supabaseAdmin as any;
 
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                await (getSupabaseAdmin() as any)
+                await clientAny
                     .from('profiles')
                     .update({
                         plan: 'free',
                         plan_updated_at: new Date().toISOString()
-                    })
+                    } as any)
                     .eq('stripe_customer_id', customerId);
+                await logAudit('subscription_deleted', { customerId });
                 break;
             }
 

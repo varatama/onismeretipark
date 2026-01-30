@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import type { Database } from '@/lib/database.types';
@@ -21,6 +22,7 @@ async function isAdmin(accessToken?: string) {
 
 export async function POST(req: Request) {
     const supabaseAdmin = getSupabaseAdmin();
+    const clientAny = supabaseAdmin as any;
     const body = await req.json();
     const auth = req.headers.get('authorization') || undefined;
     const token = auth?.startsWith('Bearer ') ? auth.split(' ')[1] : auth;
@@ -38,10 +40,9 @@ export async function POST(req: Request) {
         cover_emoji: body.cover_emoji ?? null,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await clientAny
         .from('experiences')
-        .insert([payload])
+        .insert([payload] as any)
         .select()
         .maybeSingle();
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
     const supabaseAdmin = getSupabaseAdmin();
+    const clientAny = supabaseAdmin as any;
     const auth = req.headers.get('authorization') || undefined;
     const token = auth?.startsWith('Bearer ') ? auth.split(' ')[1] : auth;
     if (!await isAdmin(token)) return new NextResponse('Forbidden', { status: 403 });
@@ -70,10 +72,9 @@ export async function PUT(req: Request) {
         cover_emoji: body.cover_emoji ?? undefined,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await clientAny
         .from('experiences')
-        .update(patch)
+        .update(patch as any)
         .eq('id', id);
 
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
@@ -82,6 +83,7 @@ export async function PUT(req: Request) {
 
 export async function PATCH(req: Request) {
     const supabaseAdmin = getSupabaseAdmin();
+    const clientAny = supabaseAdmin as any;
     const auth = req.headers.get('authorization') || undefined;
     const token = auth?.startsWith('Bearer ') ? auth.split(' ')[1] : auth;
     if (!await isAdmin(token)) return new NextResponse('Forbidden', { status: 403 });
@@ -103,14 +105,14 @@ export async function PATCH(req: Request) {
         };
     }) as unknown as Database['public']['Tables']['experiences']['Insert'][];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from('experiences').upsert(itemsArr, { onConflict: 'id' });
+    const { error } = await clientAny.from('experiences').upsert(itemsArr as any, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
 }
 
 export async function DELETE(req: Request) {
     const supabaseAdmin = getSupabaseAdmin();
+    const clientAny = supabaseAdmin as any;
     const auth = req.headers.get('authorization') || undefined;
     const token = auth?.startsWith('Bearer ') ? auth.split(' ')[1] : auth;
     if (!await isAdmin(token)) return new NextResponse('Forbidden', { status: 403 });
@@ -119,7 +121,7 @@ export async function DELETE(req: Request) {
     const id = url.searchParams.get('id');
     if (!id) return new NextResponse('Missing id', { status: 400 });
 
-    const { error } = await supabaseAdmin.from('experiences').delete().eq('id', id);
+    const { error } = await clientAny.from('experiences').delete().eq('id', id);
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
 }

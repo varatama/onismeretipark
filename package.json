@@ -10,6 +10,7 @@
     "db:link": "supabase link",
     "db:push": "supabase db push",
     "db:seed": "supabase sql --file supabase/seed.sql",
+    "db:seed:v1": "supabase sql --file supabase/seed_content_v1.sql",
     "db:bootstrap": "echo \"Run in Supabase SQL editor: SELECT public.bootstrap_first_admin('varaljatamas@gmail.com');\"",
     "db:reset": "supabase db reset"
   },

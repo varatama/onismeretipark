@@ -10,7 +10,7 @@ export function Card({ children, className = '' }: { children: ReactNode, classN
     );
 }
 
-export function Badge({ children, color = 'stone' }: { children: ReactNode, color?: 'stone' | 'indigo' | 'green' | 'red' | 'orange' }) {
+export function Badge({ children, color = 'stone', className = '' }: { children: ReactNode, color?: 'stone' | 'indigo' | 'green' | 'red' | 'orange', className?: string }) {
     const colors = {
         stone: "bg-stone-100 text-stone-600",
         indigo: "bg-indigo-50 text-indigo-600",
@@ -20,7 +20,7 @@ export function Badge({ children, color = 'stone' }: { children: ReactNode, colo
     };
 
     return (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${colors[color]}`}>
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${colors[color]} ${className}`}>
             {children}
         </span>
     );

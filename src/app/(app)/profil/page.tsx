@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getOrSyncProfile, getOnboarding, Profile, Onboarding } from '@/lib/user';
+import { supabase } from '@/lib/supabaseClient';
 import { PageShell } from '@/components/ui/PageShell';
 import { LoadingState } from '@/components/ui/StatusStates';
 import { LogOut, ShieldCheck } from 'lucide-react';
@@ -15,6 +16,7 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [onboarding, setOnboarding] = useState<Onboarding | null>(null);
     const [loading, setLoading] = useState(true);
+    const [portalLoading, setPortalLoading] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -34,6 +36,23 @@ export default function ProfilePage() {
     }
 
     if (!profile || !onboarding) return null; // Should not happen due to getOrSyncProfile
+
+    const isPremium = profile.plan === 'premium';
+
+    async function openPortal() {
+        setPortalLoading(true);
+        try {
+            const { data } = await supabase.auth.getSession();
+            const token = data.session?.access_token;
+            if (!token) throw new Error('Bejelentkezés szükséges');
+
+            const res = await fetch('/api/stripe/portal', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+            const json = await res.json();
+            if (json?.url) window.location.href = json.url;
+        } finally {
+            setPortalLoading(false);
+        }
+    }
 
     return (
         <PageShell
@@ -68,18 +87,28 @@ export default function ProfilePage() {
                     <div className="bg-white p-6 rounded-[2rem] border border-stone-100 flex items-center justify-between">
                         <div>
                             <h4 className="font-bold text-gray-900">Jelenlegi csomag</h4>
-                            <p className="text-xs text-stone-500">{profile.is_premium ? 'Prémium előfizetés' : 'Ingyenes próba'}</p>
+                            <p className="text-xs text-stone-500">{isPremium ? 'Prémium előfizetés' : 'Ingyenes próba'}</p>
                         </div>
-                        <div className={`px-4 py-2 rounded-xl text-xs font-bold uppercase ${profile.is_premium ? 'bg-indigo-100 text-indigo-700' : 'bg-stone-100 text-stone-500'}`}>
+                        <div className={`px-4 py-2 rounded-xl text-xs font-bold uppercase ${isPremium ? 'bg-indigo-100 text-indigo-700' : 'bg-stone-100 text-stone-500'}`}>
                             {profile.plan}
                         </div>
                     </div>
 
-                    {!profile.is_premium && (
-                        <Link href="/elofizetes" className="block w-full p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-white font-bold shadow-lg shadow-indigo-200">
-                            Váltás Prémiumra 🚀
-                        </Link>
-                    )}
+                    <div className="grid grid-cols-1 gap-3">
+                        {!isPremium && (
+                            <Link href="/elofizetes" className="block w-full p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-white font-bold shadow-lg shadow-indigo-200">
+                                Váltás Prémiumra 🚀
+                            </Link>
+                        )}
+
+                        <button
+                            onClick={openPortal}
+                            disabled={portalLoading}
+                            className="w-full p-4 rounded-xl bg-white border border-stone-100 text-center text-stone-700 font-bold shadow-sm disabled:opacity-60"
+                        >
+                            {portalLoading ? 'Betöltés…' : 'Számlázás kezelése'}
+                        </button>
+                    </div>
                 </div>
 
                 {/* 4. Admin Access (Protected UI) */}

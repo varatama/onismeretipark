@@ -15,6 +15,7 @@ interface EnvInfo {
 export default function DebugPage() {
     const [health, setHealth] = useState<{ ok: boolean, error?: string } | null>(null);
     const [session, setSession] = useState<Session | null>(null);
+    const [profileRole, setProfileRole] = useState<string | null>(null);
     const [envInfo, setEnvInfo] = useState<EnvInfo | null>(null);
 
     useEffect(() => {
@@ -24,6 +25,11 @@ export default function DebugPage() {
 
             const { data } = await supabase.auth.getSession();
             setSession(data.session);
+
+            if (data.session?.user?.id) {
+                const { data: profile } = await supabase.from('profiles').select('role,email').eq('id', data.session.user.id).maybeSingle();
+                setProfileRole(profile?.role ?? null);
+            }
 
             const e = getPublicEnv();
             setEnvInfo({
@@ -105,6 +111,25 @@ export default function DebugPage() {
             >
                 Frissítés
             </button>
+
+            {/* Admin bootstrap button (visible if user's email matches ADMIN_BOOTSTRAP_EMAIL and not already admin) */}
+            {session?.user?.email && session.user.email.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_BOOTSTRAP_EMAIL || '').toLowerCase() && profileRole !== 'admin' && (
+                <button
+                    onClick={async () => {
+                        const token = (await supabase.auth.getSession()).data.session?.access_token;
+                        if (!token) return alert('Bejelentkezés szükséges');
+                        const res = await fetch('/api/admin/bootstrap-first-admin', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                        if (res.ok) alert('Admin jog sikeresen beállítva');
+                        else {
+                            const j = await res.json();
+                            alert('Hiba: ' + (j?.error || 'ismeretlen'));
+                        }
+                    }}
+                    className="w-full mt-4 py-3 rounded-2xl bg-amber-500 text-white font-bold"
+                >
+                    Admin mód aktiválása
+                </button>
+            )}
         </div>
     );
 }

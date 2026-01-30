@@ -34,7 +34,9 @@ export async function getProfile(userId: string): Promise<Profile | null> {
         console.error('Error fetching profile:', error);
         return null;
     }
-    return data;
+    if (!data) return null;
+    // derive is_premium from plan to keep single source of truth
+    return { ...data, is_premium: (data.plan === 'premium') } as Profile;
 }
 
 /**
@@ -64,7 +66,8 @@ export async function getOrSyncProfile(userId: string): Promise<Profile | null> 
         console.error('Error syncing profile:', error);
         return null;
     }
-    return data;
+    if (!data) return null;
+    return { ...data, is_premium: (data.plan === 'premium') } as Profile;
 }
 
 export async function updateProfileName(userId: string, fullName: string) {

@@ -99,7 +99,7 @@ function EditorContent({ params }: { params: { id: string } }) {
         <div className="min-h-screen bg-stone-50 pb-32">
             {/* Custom Header similar to PageShell but with save actions */}
             <div className="sticky top-0 z-20 bg-stone-50/80 backdrop-blur-md border-b border-stone-200">
-                <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <Link href="/admin/experiences">
                         <Button variant="ghost" size="sm" icon={<ArrowLeft size={18} />} />
                     </Link>
@@ -113,7 +113,7 @@ function EditorContent({ params }: { params: { id: string } }) {
                 </div>
             </div>
 
-            <main className="max-w-4xl mx-auto px-6 py-8 space-y-10">
+            <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
                 {/* 1. Metadata Block */}
                 <section className="space-y-4">
                     <h3 className="font-bold text-lg flex items-center gap-2">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
@@ -29,7 +30,8 @@ export async function GET(req: Request) {
     const auth = await requireAdmin(req);
     if (!auth.ok) return NextResponse.json(auth.body, { status: auth.status });
 
-    const { data, error } = await supabaseAdmin.from('profiles').select('id, email, role, plan, is_premium, created_at').order('email', { ascending: true });
+    const clientAny = supabaseAdmin as any;
+    const { data, error } = await clientAny.from('profiles').select('id, email, role, plan, is_premium, created_at').order('email', { ascending: true });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data || []);
 }
@@ -42,10 +44,10 @@ export async function PATCH(req: Request) {
     const { id, role } = body || {};
     if (!id || !role) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const clientAny = supabaseAdmin as any;
+    const { error } = await clientAny
         .from('profiles')
-        .update({ role, updated_at: new Date().toISOString() })
+        .update({ role, updated_at: new Date().toISOString() } as any)
         .eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
