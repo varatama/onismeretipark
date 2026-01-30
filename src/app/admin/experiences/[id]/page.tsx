@@ -4,15 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Experience, ExperienceStep } from '@/lib/experiences';
 import { Button } from '@/components/ui/Button';
-import { Card, Badge } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/StatusStates';
-import { ArrowLeft, Save, Archive, Trash, LayoutTemplate } from 'lucide-react';
+import { ArrowLeft, Save, LayoutTemplate } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { StepsEditor } from '@/components/admin/StepsEditor';
 import { RequireRole } from '@/components/guards/RequireRole';
-import { PageShell } from '@/components/ui/PageShell';
 
 export default function ExperienceEditorPage({ params }: { params: { id: string } }) {
     return (
@@ -51,7 +49,10 @@ function EditorContent({ params }: { params: { id: string } }) {
     }, [id]);
 
     useEffect(() => {
-        if (id) loadData();
+        const init = async () => {
+            if (id) await loadData();
+        };
+        init();
     }, [id, loadData]);
 
     async function handleSave() {

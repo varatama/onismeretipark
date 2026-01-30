@@ -2,7 +2,6 @@
 
 import { PageShell } from '@/components/ui/PageShell';
 import { EmptyState } from '@/components/ui/StatusStates';
-import { Video } from 'lucide-react';
 
 export default function LivePage() {
     return (

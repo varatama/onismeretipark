@@ -3,7 +3,6 @@
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {

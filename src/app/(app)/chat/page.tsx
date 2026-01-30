@@ -2,7 +2,6 @@
 
 import { PageShell } from '@/components/ui/PageShell';
 import { EmptyState } from '@/components/ui/StatusStates';
-import { MessageCircle } from 'lucide-react';
 
 export default function ChatPage() {
     return (

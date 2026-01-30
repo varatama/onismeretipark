@@ -1,9 +1,8 @@
 'use client';
 
 import { AdminGuard } from '@/components/auth/AdminGuard';
-import { PageShell } from '@/components/ui/PageShell';
 import Link from 'next/link';
-import { LayoutDashboard, Compass, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Compass, Users } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

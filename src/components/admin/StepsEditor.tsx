@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { ExperienceStep } from '@/lib/experiences';
-import { reorderExperienceSteps } from '@/lib/admin/reorder';
-import { supabase } from '@/lib/supabaseClient';
+import { /*reorderExperienceSteps*/ } from '@/lib/admin/reorder';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Clock, Type } from 'lucide-react';
+import { Plus, Trash2, ArrowUp, ArrowDown, Clock } from 'lucide-react';
 
 interface StepsEditorProps {
     experienceId: string;

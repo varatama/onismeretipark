@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Profile, updateProfileName, updateProfileAvatar, updateProfile } from '@/lib/user';
+import { Profile, updateProfile } from '@/lib/user';
 import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2, User, Check, X } from 'lucide-react';
+import { User } from 'lucide-react';
 import Image from 'next/image';
 
 interface ProfileEditorProps {
@@ -79,7 +79,7 @@ export function ProfileEditor({ profile, onUpdate }: ProfileEditorProps) {
                     <div className="flex gap-2">
                         <label className="inline-flex items-center gap-2 cursor-pointer">
                             <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
-                            <Button variant="outline" size="sm">Kép feltöltése</Button>
+                            <Button variant="outline" size="sm" disabled={uploading}>Kép feltöltése</Button>
                         </label>
                         <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                             Adatok szerkesztése

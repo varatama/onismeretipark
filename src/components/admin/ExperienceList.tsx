@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { Experience } from '@/lib/experiences';
 import { Card, Badge } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Edit, Archive, Eye, GripVertical, CheckCircle2 } from 'lucide-react';
+import { Edit, GripVertical } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 interface ExperienceListProps {

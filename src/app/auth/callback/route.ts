@@ -41,14 +41,14 @@ export async function GET(request: Request) {
                 set(name: string, value: string, options?: Record<string, unknown>) {
                     try {
                         cookieStore.set({ name, value, ...options });
-                    } catch (err) {
+                    } catch {
                         // This can safely be ignored if the middleware is handling it
                     }
                 },
                 remove(name: string, options?: Record<string, unknown>) {
                     try {
                         cookieStore.set({ name, value: "", ...options });
-                    } catch (err) {
+                    } catch {
                         // This can safely be ignored
                     }
                 },

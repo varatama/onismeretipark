@@ -32,7 +32,7 @@ export function BottomNav() {
         return () => { mounted = false };
     }, [user]);
 
-    const navItems: { href: string; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
+    const navItems: { href: string; label: string; icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }> }[] = [
         { href: '/park', label: 'Park', icon: Map },
         { href: '/chat', label: 'Chat', icon: MessageCircle },
         { href: '/elo', label: 'Élő', icon: Video },

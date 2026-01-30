@@ -6,8 +6,7 @@ import { getExperiences, getUserProgress, Experience, UserProgress, getUserStats
 import { getOrSyncProfile, Profile } from '@/lib/user';
 import { ParkHeader } from "@/components/park/ParkHeader";
 import { AttractionCard } from "@/components/park/AttractionCard";
-import { Loader2, Activity, Clock, Trophy } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Activity, Trophy } from 'lucide-react';
 import { PageShell } from '@/components/ui/PageShell';
 import { LoadingState } from '@/components/ui/StatusStates';
 import { PremiumCTA } from '@/components/ui/Gating';
@@ -73,8 +72,8 @@ export default function ParkPage() {
                             <Activity size={14} />
                             <span className="text-[10px] font-bold uppercase tracking-wider">Mai fókusz</span>
                         </div>
-                        <div className="flex items-end gap-1">
-                            <span className="text-2xl font-black">{stats?.totalCompleted * 8 || 0}</span>
+                            <div className="flex items-end gap-1">
+                            <span className="text-2xl font-black">{(stats?.totalCompleted || 0) * 8}</span>
                             <span className="text-xs font-bold mb-1 opacity-80">perc</span>
                         </div>
                     </div>

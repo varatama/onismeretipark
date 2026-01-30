@@ -38,7 +38,12 @@ export async function POST(req: Request) {
         cover_emoji: body.cover_emoji ?? null,
     };
 
-    const { data, error } = await supabaseAdmin.from('experiences').insert([payload]).select().maybeSingle();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabaseAdmin as any)
+        .from('experiences')
+        .insert([payload])
+        .select()
+        .maybeSingle();
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return NextResponse.json(data);
 }
@@ -65,7 +70,11 @@ export async function PUT(req: Request) {
         cover_emoji: body.cover_emoji ?? undefined,
     };
 
-    const { error } = await supabaseAdmin.from('experiences').update(patch).eq('id', id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabaseAdmin as any)
+        .from('experiences')
+        .update(patch)
+        .eq('id', id);
 
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
@@ -92,9 +101,10 @@ export async function PATCH(req: Request) {
             duration_min: typeof o.duration_min === 'number' ? o.duration_min : Number(o.duration_min) || null,
             cover_emoji: o.cover_emoji ?? null,
         };
-    }) as Database['public']['Tables']['experiences']['Insert'][];
+    }) as unknown as Database['public']['Tables']['experiences']['Insert'][];
 
-    const { error } = await supabaseAdmin.from('experiences').upsert(itemsArr, { onConflict: 'id' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabaseAdmin as any).from('experiences').upsert(itemsArr, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
 }

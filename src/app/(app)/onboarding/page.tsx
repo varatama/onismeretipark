@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { saveOnboarding, getOnboarding } from '@/lib/user';
 import { PageShell } from '@/components/ui/PageShell';
-import { motion } from 'framer-motion';
+// framer-motion not used here — removed to satisfy lint
 import { Loader2, Target, Zap, Clock, CheckCircle2 } from 'lucide-react';
 
 const FOCUS_OPTIONS = [

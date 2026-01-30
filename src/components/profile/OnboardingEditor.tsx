@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Onboarding, saveOnboarding } from '@/lib/user';
 import { Button } from '@/components/ui/Button';
-import { Target, Zap, Clock, ChevronDown } from 'lucide-react';
+import { Target, ChevronDown } from 'lucide-react';
 
 interface OnboardingEditorProps {
     onboarding: Onboarding;

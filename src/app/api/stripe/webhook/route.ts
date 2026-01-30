@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import type { Database } from '@/lib/database.types';
 import Stripe from 'stripe';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -38,7 +39,8 @@ export async function POST(req: Request) {
                 const subscriptionId = session.subscription as string;
 
                 if (userId) {
-                    await getSupabaseAdmin()
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    await (getSupabaseAdmin() as any)
                         .from('profiles')
                         .update({
                             plan: 'premium',
@@ -56,7 +58,8 @@ export async function POST(req: Request) {
                 // We need to find the user by customer_id
                 const customerId = subscription.customer as string;
 
-                await getSupabaseAdmin()
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (getSupabaseAdmin() as any)
                     .from('profiles')
                     .update({
                         plan: 'free',

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import { ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { HTMLMotionProps, motion } from 'framer-motion';
 

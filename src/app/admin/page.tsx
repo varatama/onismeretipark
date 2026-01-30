@@ -1,8 +1,6 @@
 'use client';
 
 import { AdminGuard } from '@/components/auth/AdminGuard';
-import { EmptyState } from '@/components/ui/StatusStates';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 

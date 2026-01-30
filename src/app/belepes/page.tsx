@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase, checkSupabaseConnection } from '@/lib/supabaseClient';
-import { Mail, AlertCircle, Loader2, WifiOff, Settings2 } from 'lucide-react';
+import { Mail, Loader2, WifiOff, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';

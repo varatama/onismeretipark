@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { Check, ArrowLeft, Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageShell } from '@/components/ui/PageShell';
 

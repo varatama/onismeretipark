@@ -1,7 +1,6 @@
 'use client';
 
 import { Loader2, AlertCircle, FileQuestion } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export function LoadingState({ message = "Betöltés..." }: { message?: string }) {
     return (

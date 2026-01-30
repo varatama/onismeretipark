@@ -37,7 +37,12 @@ export async function POST(req: Request) {
         duration_sec: typeof body.duration_sec === 'number' ? body.duration_sec : Number(body.duration_sec) || 30,
     };
 
-    const { data, error } = await supabaseAdmin.from('experience_steps').insert([payload] as Database['public']['Tables']['experience_steps']['Insert'][]).select().maybeSingle();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabaseAdmin as any)
+            .from('experience_steps')
+            .insert([payload])
+            .select()
+            .maybeSingle();
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return NextResponse.json(data);
 }
@@ -61,7 +66,11 @@ export async function PUT(req: Request) {
         duration_sec: typeof body.duration_sec === 'number' ? body.duration_sec : (Number(body.duration_sec) || undefined),
     };
 
-    const { error } = await supabaseAdmin.from('experience_steps').update(patch).eq('id', id);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabaseAdmin as any)
+            .from('experience_steps')
+            .update(patch)
+            .eq('id', id);
 
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
@@ -98,9 +107,10 @@ export async function PATCH(req: Request) {
             id: String(o.id ?? ''),
             order_index: typeof o.order_index === 'number' ? o.order_index : Number(o.order_index) || 0,
         };
-    }) as Database['public']['Tables']['experience_steps']['Insert'][];
+    }) as unknown as Database['public']['Tables']['experience_steps']['Insert'][];
 
-    const { error } = await supabaseAdmin.from('experience_steps').upsert(items, { onConflict: 'id' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabaseAdmin as any).from('experience_steps').upsert(items, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return new NextResponse(null, { status: 204 });
 }

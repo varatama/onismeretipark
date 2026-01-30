@@ -35,7 +35,10 @@ function AdminExperiencesContent() {
     }
 
     useEffect(() => {
-        fetchExperiences();
+        const init = async () => {
+            await fetchExperiences();
+        };
+        init();
     }, []);
 
     const { session } = useAuth();
