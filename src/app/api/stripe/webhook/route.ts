@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import type { Database } from '@/lib/database.types';
 import Stripe from 'stripe';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
