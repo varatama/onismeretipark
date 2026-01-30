@@ -37,7 +37,7 @@ export async function POST(req: Request) {
                 const subscriptionId = session.subscription as string;
 
                 if (userId) {
-                    await (getSupabaseAdmin() as any)
+                    await getSupabaseAdmin()
                         .from('profiles')
                         .update({
                             plan: 'premium',
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
                 // We need to find the user by customer_id
                 const customerId = subscription.customer as string;
 
-                await (getSupabaseAdmin() as any)
+                await getSupabaseAdmin()
                     .from('profiles')
                     .update({
                         plan: 'free',

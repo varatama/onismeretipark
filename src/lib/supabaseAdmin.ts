@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 // Accessing Service Role Key safely.
 // This should only be used in server-side API routes, never on client.
 
-let adminInstance: ReturnType<typeof createClient> | null = null;
+let adminInstance: any = null;
 
 export const getSupabaseAdmin = () => {
     if (adminInstance) return adminInstance;
@@ -15,14 +15,9 @@ export const getSupabaseAdmin = () => {
         // console.warn("Supabase Service Role Key missing");
     }
 
-    // Return a permissively typed client to avoid build-time TS 'never' errors
+    // Central permissive cast: satisfy Supabase TS overloads where generated types are absent.
     adminInstance = createClient(supabaseUrl, serviceRoleKey) as any;
     return adminInstance as any;
 };
 
-// Export a proxy or just the function. Let's export the function to be safe and update usage.
-export const supabaseAdmin = new Proxy({}, {
-    get: (_target, prop) => {
-        return (getSupabaseAdmin() as any)[prop];
-    }
-}) as any;
+export const supabaseAdmin = getSupabaseAdmin();
