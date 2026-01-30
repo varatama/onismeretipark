@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
 import { getPublicEnv } from '@/lib/env';
 import { Card } from '@/components/ui/Card';
+import { MagicDust } from '@/components/ui/MagicDust';
 
 function LoginContent() {
     const { user, isLoading: authLoading } = useAuth();
@@ -75,19 +76,22 @@ function LoginContent() {
     const hasConfigError = envErrors.length > 0 || !!connError;
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center pt-10 pb-20 px-4 overflow-hidden">
+        <div className="relative min-h-screen flex items-center justify-center pt-10 pb-20 px-4 overflow-hidden bg-stone-900">
             {/* Background Layer - Mobile */}
             <img
-                src="/img/bg/bg_welcome_mobile.png"
+                src="/img/bg/bg_welcome_mobile.webp"
                 alt="Background Mobile"
                 className="absolute inset-0 z-0 w-full h-full object-cover md:hidden"
             />
             {/* Background Layer - Desktop */}
             <img
-                src="/img/bg/bg_welcome_desktop.png"
+                src="/img/bg/bg_welcome_pc.webp"
                 alt="Background Desktop"
-                className="absolute inset-0 z-0 w-full h-full object-cover hidden md:block"
+                className="absolute inset-0 z-0 w-full h-full object-contain hidden md:block"
             />
+
+            {/* Magic Dust Animation Layer */}
+            <MagicDust />
 
             {/* Content Layer */}
             <motion.div
@@ -96,10 +100,10 @@ function LoginContent() {
                 className="relative z-10 w-full max-w-[24rem]"
             >
                 <div className="mb-10 text-center space-y-3">
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight drop-shadow-sm">
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight drop-shadow-sm text-stone-100 shadow-black">
                         Önismereti Park
                     </h1>
-                    <p className="text-stone-600 text-lg leading-relaxed font-medium">
+                    <p className="text-stone-200 text-lg leading-relaxed font-medium drop-shadow-md">
                         Lépj be a fejlődésed terébe.
                     </p>
                 </div>
