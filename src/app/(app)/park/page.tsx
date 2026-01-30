@@ -6,10 +6,12 @@ import { getExperiences, getUserProgress, Experience, UserProgress, getUserStats
 import { getOrSyncProfile, Profile } from '@/lib/user';
 import { ParkHeader } from "@/components/park/ParkHeader";
 import { AttractionCard } from "@/components/park/AttractionCard";
-import { Activity, Trophy } from 'lucide-react';
 import { PageShell } from '@/components/ui/PageShell';
 import { LoadingState } from '@/components/ui/StatusStates';
 import { PremiumCTA } from '@/components/ui/Gating';
+import { Card } from '@/components/ui/Card';
+import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Activity, Trophy } from 'lucide-react';
 
 export default function ParkPage() {
     const { user, isLoading: authLoading } = useAuth();
@@ -23,25 +25,20 @@ export default function ParkPage() {
     useEffect(() => {
         async function loadParkData() {
             if (!user) return;
-
             try {
                 const [exps, prof, s] = await Promise.all([
                     getExperiences(),
                     getOrSyncProfile(user.id),
                     getUserStats(user.id)
                 ]);
-
                 setExperiences(exps);
                 setProfile(prof);
                 setStats(s);
 
-                // Fetch progress for each experience
                 const pMap: Record<string, UserProgress> = {};
                 for (const exp of exps) {
                     const progress = await getUserProgress(user.id, exp.id);
-                    if (progress) {
-                        pMap[exp.id] = progress;
-                    }
+                    if (progress) pMap[exp.id] = progress;
                 }
                 setProgressMap(pMap);
             } catch (err) {
@@ -51,55 +48,51 @@ export default function ParkPage() {
             }
         }
 
-        if (!authLoading && user) {
-            loadParkData();
-        }
+        if (!authLoading && user) loadParkData();
     }, [user, authLoading]);
 
     if (authLoading || loading) {
-        return <LoadingState message="Park térkép betöltése..." />;
+        return <LoadingState message="Park betöltése..." />;
     }
 
     return (
         <PageShell>
-            <div className="flex flex-col min-h-full">
+            <div className="flex flex-col min-h-full pb-20">
                 <ParkHeader status={profile?.is_premium ? 'Előfizető' : 'Próba'} />
 
                 {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-10 px-1">
-                    <div className="p-5 rounded-[2rem] bg-indigo-600 text-white shadow-xl shadow-indigo-100 space-y-2">
-                        <div className="flex items-center gap-2 opacity-80">
-                            <Activity size={14} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider">Mai fókusz</span>
+                <section className="grid grid-cols-2 gap-4 mb-10 px-1">
+                    <Card variant="premium" className="p-5 flex flex-col justify-between h-32">
+                        <div className="flex items-center gap-2 opacity-80 text-indigo-800">
+                            <Activity size={16} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">Fókuszidő</span>
                         </div>
-                            <div className="flex items-end gap-1">
-                            <span className="text-2xl font-black">{(stats?.totalCompleted || 0) * 8}</span>
-                            <span className="text-xs font-bold mb-1 opacity-80">perc</span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-black text-indigo-900">{(stats?.totalCompleted || 0) * 8}</span>
+                            <span className="text-xs font-bold text-indigo-900/60 mb-1">perc</span>
                         </div>
-                    </div>
-                    <div className="p-5 rounded-[2rem] bg-white border border-stone-100 shadow-sm space-y-2">
+                    </Card>
+
+                    <Card variant="default" className="p-5 flex flex-col justify-between h-32">
                         <div className="flex items-center gap-2 text-stone-400">
-                            <Trophy size={14} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider">Kész</span>
+                            <Trophy size={16} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">Teljesítve</span>
                         </div>
-                        <div className="flex items-end gap-1">
-                            <span className="text-2xl font-black text-gray-900">{stats?.totalCompleted || 0}</span>
-                            <span className="text-xs font-bold mb-1 text-stone-400">alkalom</span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-black text-gray-900">{stats?.totalCompleted || 0}</span>
+                            <span className="text-xs font-bold text-stone-400 mb-1">db</span>
                         </div>
-                    </div>
-                </div>
+                    </Card>
+                </section>
 
                 <section className="space-y-6 flex-1 px-1">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">
-                            Neked ajánlott
-                        </h2>
-                        <button className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                            Összes
-                        </button>
-                    </div>
+                    <SectionHeader
+                        title="Neked ajánlott"
+                        subtitle="Személyre szabott tartalmak"
+                        action={{ label: "Összes", onClick: () => console.log('all') }}
+                    />
 
-                    <div className="grid grid-cols-1 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                         {experiences.map((exp, index) => (
                             <AttractionCard
                                 key={exp.id}

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
 import { getPublicEnv } from '@/lib/env';
+import { Card } from '@/components/ui/Card';
 
 function LoginContent() {
     const { user, isLoading: authLoading } = useAuth();
@@ -74,18 +75,32 @@ function LoginContent() {
     const hasConfigError = envErrors.length > 0 || !!connError;
 
     return (
-        <div className="pt-12 pb-10 flex flex-col items-center text-center px-4">
+        <div className="relative min-h-screen flex items-center justify-center pt-10 pb-20 px-4 overflow-hidden">
+            {/* Background Layer - Mobile */}
+            <img
+                src="/img/bg/bg_welcome_mobile.png"
+                alt="Background Mobile"
+                className="absolute inset-0 z-0 w-full h-full object-cover md:hidden"
+            />
+            {/* Background Layer - Desktop */}
+            <img
+                src="/img/bg/bg_welcome_desktop.png"
+                alt="Background Desktop"
+                className="absolute inset-0 z-0 w-full h-full object-cover hidden md:block"
+            />
+
+            {/* Content Layer */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-sm"
+                className="relative z-10 w-full max-w-[24rem]"
             >
-                <div className="mb-10 space-y-3">
-                    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                        Belépés
+                <div className="mb-10 text-center space-y-3">
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight drop-shadow-sm">
+                        Önismereti Park
                     </h1>
-                    <p className="text-stone-500 text-lg leading-relaxed px-4">
-                        Lépj be, hogy elérd a Parkot és az élő alkalmakat.
+                    <p className="text-stone-600 text-lg leading-relaxed font-medium">
+                        Lépj be a fejlődésed terébe.
                     </p>
                 </div>
 
@@ -97,7 +112,7 @@ function LoginContent() {
                             exit={{ opacity: 0, height: 0 }}
                             className="mb-8 overflow-hidden"
                         >
-                            <div className={`p-5 rounded-[2rem] border flex items-start gap-4 text-left shadow-sm ${envErrors.length > 0 ? 'bg-orange-50 border-orange-100 text-orange-800' : 'bg-red-50 border-red-100 text-red-800'}`}>
+                            <div className={`p-5 rounded-[2rem] border flex items-start gap-4 text-left shadow-sm bg-white/90 backdrop-blur-sm ${envErrors.length > 0 ? 'border-orange-200 text-orange-800' : 'border-red-200 text-red-800'}`}>
                                 <div className="shrink-0 mt-0.5">
                                     {envErrors.length > 0 ? <Settings2 size={20} /> : <WifiOff size={20} />}
                                 </div>
@@ -116,21 +131,18 @@ function LoginContent() {
                                             <p>{connError || "Ismeretlen hiba történt a bejelentkezés során."}</p>
                                         )}
                                     </div>
-                                    <p className="pt-2 text-[10px] font-bold uppercase tracking-wider opacity-60">
-                                        Próbáld meg frissíteni az oldalt!
-                                    </p>
                                 </div>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-stone-200/50 border border-stone-100 space-y-4">
+                <Card className="p-8 space-y-6 shadow-xl shadow-stone-900/10 bg-white/95 backdrop-blur-sm">
                     <motion.button
                         whileTap={!hasConfigError ? { scale: 0.97 } : {}}
                         onClick={handleGoogleLogin}
                         disabled={isLoggingIn || hasConfigError}
-                        className="w-full h-14 px-6 rounded-2xl bg-stone-900 text-white font-bold text-base flex items-center justify-center gap-3 transition-all hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed group"
+                        className="w-full h-14 px-6 rounded-2xl bg-stone-900 text-white font-bold text-base flex items-center justify-center gap-3 transition-all hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed group shadow-lg shadow-stone-300"
                     >
                         {isLoggingIn ? (
                             <Loader2 size={20} className="animate-spin" />
@@ -161,27 +173,27 @@ function LoginContent() {
 
                     <div className="relative py-2 text-center">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-stone-100"></div>
+                            <div className="w-full border-t border-stone-200"></div>
                         </div>
                         <div className="relative flex justify-center text-[10px] uppercase">
                             <span className="bg-white px-3 text-stone-400 font-bold tracking-widest">VAGY</span>
                         </div>
                     </div>
 
-                    <div className="space-y-2 text-center">
+                    <div className="space-y-3 text-center">
                         <button
                             disabled
-                            className="w-full h-14 px-6 rounded-2xl bg-stone-50 text-stone-300 font-bold text-base flex items-center justify-center gap-3 cursor-not-allowed border border-stone-100"
+                            className="w-full h-14 px-6 rounded-2xl bg-stone-50 text-stone-400 font-bold text-base flex items-center justify-center gap-3 cursor-not-allowed border border-stone-200"
                         >
                             <Mail size={20} className="shrink-0" />
                             <span className="truncate">Belépés e-maillel</span>
                         </button>
-                        <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Hamarosan</p>
+                        <p className="text-[10px] text-stone-300 font-bold uppercase tracking-wider">Hamarosan</p>
                     </div>
-                </div>
+                </Card>
 
-                <p className="mt-8 text-xs text-stone-400 font-medium px-8 leading-relaxed">
-                    A fantázianevet és avatart később választod.
+                <p className="mt-8 text-center text-xs text-stone-500 font-medium px-8 leading-relaxed drop-shadow-sm">
+                    A bejelentkezéssel elfogadod a felhasználási feltételeket.
                 </p>
             </motion.div>
         </div>
@@ -191,9 +203,8 @@ function LoginContent() {
 export default function LoginPage() {
     return (
         <Suspense fallback={
-            <div className="pt-16 pb-10 flex flex-col items-center text-center space-y-8 animate-pulse px-4">
-                <div className="w-32 h-10 bg-stone-200 rounded-lg"></div>
-                <div className="w-64 h-20 bg-stone-100 rounded-[2rem]"></div>
+            <div className="pt-20 flex flex-col items-center justify-center gap-4">
+                <Loader2 className="w-8 h-8 text-stone-300 animate-spin" />
             </div>
         }>
             <LoginContent />

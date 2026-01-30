@@ -1,22 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getOrSyncProfile, getOnboarding, Profile, Onboarding } from '@/lib/user';
 import { supabase } from '@/lib/supabaseClient';
 import { PageShell } from '@/components/ui/PageShell';
 import { LoadingState } from '@/components/ui/StatusStates';
-import { LogOut, ShieldCheck } from 'lucide-react';
+import { LogOut, ShieldCheck, CreditCard, Sparkles } from 'lucide-react';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 import { OnboardingEditor } from '@/components/profile/OnboardingEditor';
 import Link from 'next/link';
+import { Card, Badge } from '@/components/ui/Card';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export default function ProfilePage() {
     const { user, signOut, isLoading: authLoading } = useAuth();
+    const router = useRouter();
     const [profile, setProfile] = useState<Profile | null>(null);
     const [onboarding, setOnboarding] = useState<Onboarding | null>(null);
     const [loading, setLoading] = useState(true);
     const [portalLoading, setPortalLoading] = useState(false);
+
+    // Redirect if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.replace('/belepes');
+        }
+    }, [user, authLoading, router]);
 
     useEffect(() => {
         if (user) {
@@ -31,11 +42,16 @@ export default function ProfilePage() {
         }
     }, [user]);
 
+    const handleSignOut = async () => {
+        await signOut();
+        router.replace('/belepes');
+    };
+
     if (authLoading || loading) {
         return <LoadingState message="Profil betöltése..." />;
     }
 
-    if (!profile || !onboarding) return null; // Should not happen due to getOrSyncProfile
+    if (!user || !profile || !onboarding) return null;
 
     const isPremium = profile.plan === 'premium';
 
@@ -59,76 +75,89 @@ export default function ProfilePage() {
             title="Saját Profil"
             headerAction={
                 <button
-                    onClick={() => signOut()}
-                    className="p-3 rounded-2xl bg-stone-100 text-stone-500 hover:text-red-600 transition-colors"
+                    onClick={handleSignOut}
+                    className="p-3 rounded-2xl bg-stone-100 text-stone-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                 >
                     <LogOut size={20} />
                 </button>
             }
         >
-            <div className="space-y-8 px-1 mt-4 pb-24">
+            <div className="space-y-10 px-1 mt-4 pb-24">
+
                 {/* 1. Profile Editor */}
-                <ProfileEditor profile={profile} onUpdate={setProfile} />
+                <section>
+                    <ProfileEditor profile={profile} onUpdate={setProfile} />
+                </section>
 
                 {/* 2. Onboarding / Preferences */}
-                <div className="space-y-4">
-                    <h3 className="px-1 font-bold uppercase text-[10px] text-stone-400 tracking-widest">Személyes beállítások</h3>
+                <section className="space-y-4">
+                    <SectionHeader title="Beállítások" subtitle="Személyes preferenciák" />
                     <OnboardingEditor
                         onboarding={onboarding}
-                        userId={user!.id}
+                        userId={user.id}
                         onUpdate={(o) => setOnboarding(o)}
                     />
-                </div>
+                </section>
 
                 {/* 3. Subscription Status */}
-                <div className="space-y-4">
-                    <h3 className="px-1 font-bold uppercase text-[10px] text-stone-400 tracking-widest">Tagság</h3>
+                <section className="space-y-4">
+                    <SectionHeader title="Tagság" subtitle="Előfizetés kezelése" />
 
-                    <div className="bg-white p-6 rounded-[2rem] border border-stone-100 flex items-center justify-between">
-                        <div>
-                            <h4 className="font-bold text-gray-900">Jelenlegi csomag</h4>
-                            <p className="text-xs text-stone-500">{isPremium ? 'Prémium előfizetés' : 'Ingyenes próba'}</p>
+                    <Card variant={isPremium ? "premium" : "default"} className="p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h4 className="font-bold text-gray-900 text-lg">Jelenlegi csomag</h4>
+                                <p className="text-sm text-stone-500">{isPremium ? 'Korlátlan hozzáférés' : 'Ingyenes próbaidőszak'}</p>
+                            </div>
+                            <Badge color={isPremium ? 'premium' : 'stone'} className="px-3 py-1.5 text-xs">
+                                {profile.plan}
+                            </Badge>
                         </div>
-                        <div className={`px-4 py-2 rounded-xl text-xs font-bold uppercase ${isPremium ? 'bg-indigo-100 text-indigo-700' : 'bg-stone-100 text-stone-500'}`}>
-                            {profile.plan}
+
+                        <div className="space-y-3">
+                            {!isPremium && (
+                                <Link href="/elofizetes" className="block w-full">
+                                    <button className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+                                        <Sparkles size={18} />
+                                        Váltás Prémiumra
+                                    </button>
+                                </Link>
+                            )}
+
+                            <button
+                                onClick={openPortal}
+                                disabled={portalLoading}
+                                className="w-full py-4 rounded-xl bg-white border border-stone-200 text-stone-700 font-bold shadow-sm hover:bg-stone-50 flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                            >
+                                <CreditCard size={18} />
+                                {portalLoading ? 'Betöltés…' : 'Számlázás és kártya'}
+                            </button>
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3">
-                        {!isPremium && (
-                            <Link href="/elofizetes" className="block w-full p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-white font-bold shadow-lg shadow-indigo-200">
-                                Váltás Prémiumra 🚀
-                            </Link>
-                        )}
-
-                        <button
-                            onClick={openPortal}
-                            disabled={portalLoading}
-                            className="w-full p-4 rounded-xl bg-white border border-stone-100 text-center text-stone-700 font-bold shadow-sm disabled:opacity-60"
-                        >
-                            {portalLoading ? 'Betöltés…' : 'Számlázás kezelése'}
-                        </button>
-                    </div>
-                </div>
+                    </Card>
+                </section>
 
                 {/* 4. Admin Access (Protected UI) */}
                 {profile.role === 'admin' && (
-                    <div className="pt-8 border-t border-stone-100">
-                        <Link href="/admin/experiences" className="flex items-center gap-4 p-5 rounded-[2rem] bg-stone-900 text-white shadow-xl hover:scale-[1.02] transition-transform">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                <ShieldCheck size={20} />
-                            </div>
-                            <div>
-                                <h4 className="font-bold">Admin Studio</h4>
-                                <p className="text-xs text-stone-400">Tartalom kezelés</p>
-                            </div>
+                    <section className="pt-4 border-t border-stone-100">
+                        <Link href="/admin/experiences">
+                            <Card className="p-5 bg-stone-900 text-white shadow-xl hover:scale-[1.02]">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                        <ShieldCheck size={24} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-lg">Admin Studio</h4>
+                                        <p className="text-stone-400 text-sm">Tartalom és felhasználók kezelése</p>
+                                    </div>
+                                </div>
+                            </Card>
                         </Link>
-                    </div>
+                    </section>
                 )}
 
-                <div className="text-center pt-8">
-                    <p className="text-[10px] text-stone-300 uppercase tracking-widest">
-                        Tagság kezdete: {new Date(profile.created_at).toLocaleDateString()}
+                <div className="text-center pt-4">
+                    <p className="text-[10px] text-stone-300 uppercase tracking-widest font-mono">
+                        Tagság kezdete: {new Date(profile.created_at).toLocaleDateString()} • ID: {profile.id.substring(0, 8)}
                     </p>
                 </div>
             </div>
