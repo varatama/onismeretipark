@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Colors */
+    --brand-dark: #1c1917;
+    /* stone-900 */
+    --brand-primary: #4f46e5;
+    /* indigo-600 */
+    --brand-light: #eef2ff;
+    /* indigo-50 */
+
+    /* UI Shell Colors */
+    --bg-page: #fafaf9;
+    /* stone-50 */
+    --bg-card: #ffffff;
+
+    /* Text Colors */
+    --text-primary: #1c1917;
+    /* stone-900 */
+    --text-secondary: #78716c;
+    /* stone-500 */
+    --text-muted: #a8a29e;
+    /* stone-400 */
+
+    /* Spacing & Radius */
+    --radius-l: 1.5rem;
+    /* 24px */
+    --radius-xl: 2.5rem;
+    /* 40px */
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  body {
+    /* @apply bg-stone-50 text-stone-900 antialiased; moved to layout.tsx or handle via standard classes */
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+  }
+}
+
+@layer components {
+
+  /* classes moved to inline Tailwind usage or standard CSS to avoid build issues */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: var(--safe-bottom);
+  }
+}
