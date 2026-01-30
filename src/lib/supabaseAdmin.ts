@@ -1,11 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
 
 // Accessing Service Role Key safely.
 // This should only be used in server-side API routes, never on client.
 
-let adminInstance: any = null;
+let adminInstance: SupabaseClient<Database> | null = null;
 
-export const getSupabaseAdmin = () => {
+export const getSupabaseAdmin = (): SupabaseClient<Database> => {
     if (adminInstance) return adminInstance;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
@@ -15,9 +16,8 @@ export const getSupabaseAdmin = () => {
         // console.warn("Supabase Service Role Key missing");
     }
 
-    // Central permissive cast: satisfy Supabase TS overloads where generated types are absent.
-    adminInstance = createClient(supabaseUrl, serviceRoleKey) as any;
-    return adminInstance as any;
+    adminInstance = createClient<Database>(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+    return adminInstance;
 };
 
 export const supabaseAdmin = getSupabaseAdmin();

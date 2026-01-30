@@ -18,7 +18,7 @@ export default function ParkPage() {
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [progressMap, setProgressMap] = useState<Record<string, UserProgress>>({});
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<{ totalCompleted?: number } | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

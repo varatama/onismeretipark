@@ -165,7 +165,7 @@ export function StepsEditor({ experienceId, initialSteps }: StepsEditorProps) {
                                 <select
                                     className="bg-transparent font-bold text-sm text-indigo-600 focus:outline-none cursor-pointer"
                                     value={step.step_type}
-                                    onChange={(e) => updateStep(step.id, { step_type: e.target.value as any })}
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateStep(step.id, { step_type: e.target.value as ExperienceStep['step_type'] })}
                                 >
                                     <option value="text">Szöveg</option>
                                     <option value="breath">Légzés</option>

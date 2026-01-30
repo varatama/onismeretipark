@@ -1,8 +1,9 @@
 import { supabase } from './supabaseClient';
 import { getOrSyncProfile, Profile } from './user';
+import type { User } from '@supabase/supabase-js';
 
 type UserWithProfile = {
-  user: any | null;
+  user: User | null;
   profile: Profile | null;
 };
 

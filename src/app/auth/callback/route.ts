@@ -38,14 +38,14 @@ export async function GET(request: Request) {
                 get(name: string) {
                     return cookieStore.get(name)?.value;
                 },
-                set(name: string, value: string, options: any) {
+                set(name: string, value: string, options?: Record<string, unknown>) {
                     try {
                         cookieStore.set({ name, value, ...options });
                     } catch (err) {
                         // This can safely be ignored if the middleware is handling it
                     }
                 },
-                remove(name: string, options: any) {
+                remove(name: string, options?: Record<string, unknown>) {
                     try {
                         cookieStore.set({ name, value: "", ...options });
                     } catch (err) {

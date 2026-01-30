@@ -32,7 +32,7 @@ export function BottomNav() {
         return () => { mounted = false };
     }, [user]);
 
-    const navItems: { href: string; label: string; icon: any }[] = [
+    const navItems: { href: string; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
         { href: '/park', label: 'Park', icon: Map },
         { href: '/chat', label: 'Chat', icon: MessageCircle },
         { href: '/elo', label: 'Élő', icon: Video },
@@ -46,7 +46,7 @@ export function BottomNav() {
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 w-full sm:left-1/2 sm:-translate-x-1/2 sm:max-w-7xl z-50 bg-white/80 backdrop-blur-xl border-t border-stone-100 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-            <div className="max-w-md mx-auto px-6 h-20 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                     const Icon = item.icon;

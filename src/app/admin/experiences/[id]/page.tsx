@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Experience, ExperienceStep } from '@/lib/experiences';
 import { Button } from '@/components/ui/Button';
@@ -38,11 +38,7 @@ function EditorContent({ params }: { params: { id: string } }) {
         unwrap();
     }, [params]);
 
-    useEffect(() => {
-        if (id) loadData();
-    }, [id]);
-
-    async function loadData() {
+    const loadData = useCallback(async () => {
         if (!id) return;
         setLoading(true);
 
@@ -52,7 +48,11 @@ function EditorContent({ params }: { params: { id: string } }) {
         if (eData) setExp(eData);
         if (sData) setSteps(sData);
         setLoading(false);
-    }
+    }, [id]);
+
+    useEffect(() => {
+        if (id) loadData();
+    }, [id, loadData]);
 
     async function handleSave() {
         if (!exp || !id) return;
@@ -147,7 +147,7 @@ function EditorContent({ params }: { params: { id: string } }) {
                                 <select
                                     className="w-full bg-stone-100 rounded-lg p-3 font-bold text-sm outline-none focus:ring-2 ring-indigo-200"
                                     value={exp.status}
-                                    onChange={e => setExp({ ...exp, status: e.target.value as any })}
+                                    onChange={(e) => setExp({ ...exp, status: e.target.value as Experience['status'] })}
                                 >
                                     <option value="draft">Vázlat 📝</option>
                                     <option value="published">Publikus ✅</option>
@@ -160,7 +160,7 @@ function EditorContent({ params }: { params: { id: string } }) {
                                 <select
                                     className="w-full bg-stone-100 rounded-lg p-3 font-bold text-sm outline-none focus:ring-2 ring-indigo-200"
                                     value={exp.visibility}
-                                    onChange={e => setExp({ ...exp, visibility: e.target.value as any })}
+                                    onChange={(e) => setExp({ ...exp, visibility: e.target.value as Experience['visibility'] })}
                                 >
                                     <option value="free">Ingyenes 🎁</option>
                                     <option value="premium">Prémium 💎</option>
@@ -173,7 +173,7 @@ function EditorContent({ params }: { params: { id: string } }) {
                                 <select
                                     className="w-full bg-stone-100 rounded-lg p-3 font-bold text-sm outline-none focus:ring-2 ring-indigo-200"
                                     value={exp.difficulty}
-                                    onChange={e => setExp({ ...exp, difficulty: e.target.value as any })}
+                                    onChange={(e) => setExp({ ...exp, difficulty: e.target.value as Experience['difficulty'] })}
                                 >
                                     <option value="easy">Könnyű 🟢</option>
                                     <option value="medium">Közepes 🟡</option>

@@ -20,9 +20,10 @@ export async function POST(req: Request) {
     try {
         if (!sig) throw new Error('No signature');
         event = getStripe().webhooks.constructEvent(body, sig, endpointSecret);
-    } catch (err: any) {
-        console.error(`Webhook Error: ${err.message}`);
-        return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`Webhook Error: ${msg}`);
+        return new Response(`Webhook Error: ${msg}`, { status: 400 });
     }
 
     const session = event.data.object as Stripe.Checkout.Session;

@@ -78,18 +78,21 @@ export async function PATCH(req: Request) {
     if (!await isAdmin(token)) return new NextResponse('Forbidden', { status: 403 });
 
     const body = await req.json();
-    const items = body.items || [];
-
-    const itemsArr = (items as any[]).map(it => ({
-        id: it.id,
-        title: it.title,
-        description: it.description,
-        status: it.status,
-        visibility: it.visibility,
-        difficulty: it.difficulty,
-        duration_min: typeof it.duration_min === 'number' ? it.duration_min : Number(it.duration_min) || null,
-        cover_emoji: it.cover_emoji ?? null,
-    })) as Database['public']['Tables']['experiences']['Insert'][];
+    const itemsRaw: unknown = body.items;
+    const itemsArrSource = Array.isArray(itemsRaw) ? itemsRaw : [];
+    const itemsArr = itemsArrSource.map((it: unknown) => {
+        const o = it as Record<string, unknown>;
+        return {
+            id: String(o.id ?? ''),
+            title: String(o.title ?? ''),
+            description: o.description ?? null,
+            status: o.status ?? null,
+            visibility: o.visibility ?? null,
+            difficulty: o.difficulty ?? null,
+            duration_min: typeof o.duration_min === 'number' ? o.duration_min : Number(o.duration_min) || null,
+            cover_emoji: o.cover_emoji ?? null,
+        };
+    }) as Database['public']['Tables']['experiences']['Insert'][];
 
     const { error } = await supabaseAdmin.from('experiences').upsert(itemsArr, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });

@@ -22,22 +22,21 @@ export default function AdminExperiencesPage() {
 function AdminExperiencesContent() {
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchExperiences();
-    }, []);
-
     async function fetchExperiences() {
         setLoading(true);
         const { data, error } = await supabase
             .from('experiences')
             .select('*')
-            .order('order_index', { ascending: true }); // Ensure DB query is ordered
+            .order('created_at', { ascending: false });
 
         if (data) setExperiences(data);
         if (error) console.error(error);
         setLoading(false);
     }
+
+    useEffect(() => {
+        fetchExperiences();
+    }, []);
 
     const { session } = useAuth();
 
@@ -53,7 +52,6 @@ function AdminExperiencesContent() {
                 title: 'Új Élmény',
                 status: 'draft',
                 visibility: 'hidden',
-                order_index: experiences.length,
                 difficulty: 'medium',
                 duration_min: 10
             })

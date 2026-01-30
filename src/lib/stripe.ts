@@ -8,7 +8,7 @@ export const getStripe = () => {
     const key = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
 
     stripeInstance = new Stripe(key, {
-        apiVersion: '2026-01-28.clover' as any,
+        apiVersion: '2026-01-28',
         typescript: true,
     });
 

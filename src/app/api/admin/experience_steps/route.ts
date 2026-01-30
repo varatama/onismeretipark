@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         duration_sec: typeof body.duration_sec === 'number' ? body.duration_sec : Number(body.duration_sec) || 30,
     };
 
-    const { data, error } = await (supabaseAdmin.from('experience_steps') as any).insert([payload] as Database['public']['Tables']['experience_steps']['Insert'][]).select().maybeSingle();
+    const { data, error } = await supabaseAdmin.from('experience_steps').insert([payload] as Database['public']['Tables']['experience_steps']['Insert'][]).select().maybeSingle();
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
     return NextResponse.json(data);
 }
@@ -90,11 +90,15 @@ export async function PATCH(req: Request) {
     if (!await isAdmin(token)) return new NextResponse('Forbidden', { status: 403 });
 
     const body = await req.json();
-    const itemsRaw = body.items || [];
-    const items = (itemsRaw as any[]).map(it => ({
-        id: String(it.id),
-        order_index: typeof it.order_index === 'number' ? it.order_index : Number(it.order_index) || 0,
-    })) as Database['public']['Tables']['experience_steps']['Insert'][];
+    const itemsRaw: unknown = body.items;
+    const itemsArr = Array.isArray(itemsRaw) ? itemsRaw : [];
+    const items = itemsArr.map((it: unknown) => {
+        const o = it as Record<string, unknown>;
+        return {
+            id: String(o.id ?? ''),
+            order_index: typeof o.order_index === 'number' ? o.order_index : Number(o.order_index) || 0,
+        };
+    }) as Database['public']['Tables']['experience_steps']['Insert'][];
 
     const { error } = await supabaseAdmin.from('experience_steps').upsert(items, { onConflict: 'id' });
     if (error) return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
