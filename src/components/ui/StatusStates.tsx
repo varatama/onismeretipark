@@ -19,7 +19,7 @@ export function ErrorState({ title = "Hoppá!", message = "Valami hiba történt
                 <AlertCircle size={32} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-            <p className="text-stone-500 text-sm mb-8 max-w-[240px] leading-relaxed">{message}</p>
+            <p className="text-stone-500 text-sm mb-8 max-w-md mx-auto leading-relaxed">{message}</p>
             {onRetry && (
                 <button
                     onClick={onRetry}
@@ -39,7 +39,7 @@ export function EmptyState({ title = "Még üres", message = "Itt jelenleg nincs
                 <FileQuestion size={32} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-            <p className="text-stone-500 text-sm max-w-[240px] leading-relaxed">{message}</p>
+            <p className="text-stone-500 text-sm max-w-md mx-auto leading-relaxed">{message}</p>
         </div>
     );
 }

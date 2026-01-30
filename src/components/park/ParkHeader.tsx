@@ -35,7 +35,7 @@ export function ParkHeader({ status }: ParkHeaderProps) {
                 </p>
             </div>
 
-            <p className="text-gray-600 text-xl font-medium leading-snug max-w-[280px]">
+            <p className="text-gray-600 text-xl font-medium leading-snug max-w-2xl">
                 Ma mivel szeretnél foglalkozni magaddal?
             </p>
         </header>

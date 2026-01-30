@@ -24,10 +24,10 @@ export function PageShell({
     className = "",
     fullWidth = false
 }: PageShellProps) {
-    const maxWidthClass = fullWidth ? 'max-w-5xl' : 'max-w-md';
+    const maxWidthClass = fullWidth ? 'max-w-6xl' : 'max-w-3xl';
 
     return (
-        <div className={`flex flex-col min-h-screen pt-10 pb-32 animate-fade-in ${maxWidthClass} mx-auto w-full ${className}`}>
+        <div className={`flex flex-col min-h-screen pt-10 pb-32 animate-fade-in w-full ${maxWidthClass} mx-auto ${className}`}>
             <AdminBadge />
             {/* Header Area */}
             {(title || backHref) && (

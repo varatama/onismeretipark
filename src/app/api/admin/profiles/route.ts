@@ -18,8 +18,11 @@ async function requireAdmin(req: Request) {
     const user = await getUserFromToken(req);
     if (!user) return { ok: false, status: 401, body: { error: 'Unauthorized' } };
 
-    const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).maybeSingle();
-    if (!profile || profile.role !== 'admin') return { ok: false, status: 403, body: { error: 'Forbidden' } };
+    const { data: profile } = await (supabaseAdmin.from('profiles') as any)
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+    if (!profile || (profile as any).role !== 'admin') return { ok: false, status: 403, body: { error: 'Forbidden' } };
     return { ok: true, user };
 }
 
@@ -27,7 +30,9 @@ export async function GET(req: Request) {
     const auth = await requireAdmin(req);
     if (!auth.ok) return NextResponse.json(auth.body, { status: auth.status });
 
-    const { data, error } = await supabaseAdmin.from('profiles').select('id, email, role, plan, is_premium, created_at').order('email', { ascending: true });
+    const { data, error } = await (supabaseAdmin.from('profiles') as any)
+        .select('id, email, role, plan, is_premium, created_at')
+        .order('email', { ascending: true });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data || []);
 }
@@ -41,7 +46,9 @@ export async function PATCH(req: Request) {
     const { id, role } = body || {};
     if (!id || !role) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
 
-    const { error } = await supabaseAdmin.from('profiles').update({ role, updated_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await (supabaseAdmin.from('profiles') as any)
+        .update({ role, updated_at: new Date().toISOString() })
+        .eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
 }

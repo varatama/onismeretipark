@@ -98,13 +98,13 @@ function EditorContent({ params }: { params: { id: string } }) {
         <div className="min-h-screen bg-stone-50 pb-32">
             {/* Custom Header similar to PageShell but with save actions */}
             <div className="sticky top-0 z-20 bg-stone-50/80 backdrop-blur-md border-b border-stone-200">
-                <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                     <Link href="/admin/experiences">
                         <Button variant="ghost" size="sm" icon={<ArrowLeft size={18} />} />
                     </Link>
                     <div className="text-center">
                         <h1 className="text-sm font-bold uppercase tracking-widest text-stone-500">Szerkesztés</h1>
-                        <div className="font-bold text-gray-900 truncate max-w-[200px]">{exp.title}</div>
+                        <div className="font-bold text-gray-900 truncate max-w-lg">{exp.title}</div>
                     </div>
                     <Button onClick={handleSave} isLoading={saving} className="bg-indigo-600 text-white" icon={<Save size={18} />}>
                         Mentés
@@ -112,7 +112,7 @@ function EditorContent({ params }: { params: { id: string } }) {
                 </div>
             </div>
 
-            <main className="max-w-2xl mx-auto px-6 py-8 space-y-10">
+            <main className="max-w-4xl mx-auto px-6 py-8 space-y-10">
                 {/* 1. Metadata Block */}
                 <section className="space-y-4">
                     <h3 className="font-bold text-lg flex items-center gap-2">

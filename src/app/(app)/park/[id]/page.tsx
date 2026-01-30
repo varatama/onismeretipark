@@ -182,7 +182,7 @@ export default function ExperiencePlayerPage({ params }: { params: { id: string 
             </main>
 
             {/* Controls */}
-            <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] p-6 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pt-10">
+            <footer className="fixed bottom-0 left-0 right-0 w-full sm:left-1/2 sm:-translate-x-1/2 sm:max-w-7xl p-6 bg-gradient-to-t from-stone-50 via-stone-50 to-transparent pt-10">
                 <button
                     onClick={handleNext}
                     disabled={isSaving}

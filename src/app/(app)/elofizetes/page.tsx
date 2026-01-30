@@ -28,7 +28,7 @@ export default function SubscriptionPage() {
                     <h1 className="text-3xl font-black text-gray-900 leading-tight">
                         Válts Prémiumra
                     </h1>
-                    <p className="text-stone-500 font-medium text-base leading-relaxed max-w-[300px] mx-auto">
+                    <p className="text-stone-500 font-medium text-base leading-relaxed max-w-xl mx-auto">
                         Csatlakozz közösségünkhöz, és mélyítsd el az önismereti utazásod minden nap.
                     </p>
                 </div>

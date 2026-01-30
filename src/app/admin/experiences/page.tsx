@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/StatusStates';
 import { Plus } from 'lucide-react';
 import { ExperienceList } from '@/components/admin/ExperienceList';
-import { RequireRole } from '@/components/guards/RequireRole';
+import { AdminGuard } from '@/components/auth/AdminGuard';
 import { PageShell } from '@/components/ui/PageShell';
 
 export default function AdminExperiencesPage() {
