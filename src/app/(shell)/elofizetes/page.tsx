@@ -4,7 +4,8 @@ import { Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageShell } from '@/components/ui/PageShell';
 import { supabase } from '@/lib/supabaseClient';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 async function startCheckout(setLoading: (v: boolean) => void) {
     setLoading(true);
@@ -29,7 +30,11 @@ async function startCheckout(setLoading: (v: boolean) => void) {
     }
 }
 
-export default function SubscriptionPage() {
+function SubscriptionContent() {
+    const searchParams = useSearchParams();
+    const reason = searchParams.get('reason');
+    const isExpired = reason === 'expired';
+
     const benefits = [
         "Teljes hozzáférés az összes attrakcióhoz",
         "Heti élő online alkalmak",
@@ -41,22 +46,25 @@ export default function SubscriptionPage() {
 
     return (
         <PageShell backHref="/park">
-            <div className="flex flex-col items-center text-center space-y-8 px-1">
+            <div className="flex flex-col items-center text-center space-y-8 px-1 pb-20">
                 {/* Icon/Visual */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="w-20 h-20 rounded-[2rem] bg-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-200"
+                    className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-white shadow-2xl ${isExpired ? 'bg-amber-500 shadow-amber-200' : 'bg-indigo-600 shadow-indigo-200'}`}
                 >
                     <Sparkles size={40} />
                 </motion.div>
 
                 <div className="space-y-4">
                     <h1 className="text-3xl font-black text-gray-900 leading-tight">
-                        Válts Prémiumra
+                        {isExpired ? 'A próbaidőszak véget ért' : 'Válts Prémiumra'}
                     </h1>
-                    <p className="text-stone-500 font-medium text-base leading-relaxed max-w-xl mx-auto">
-                        Csatlakozz közösségünkhöz, és mélyítsd el az önismereti utazásod minden nap.
+                    <p className="text-stone-500 font-medium text-base leading-relaxed max-w-xl mx-auto px-4">
+                        {isExpired
+                            ? "A 7 napos kaland véget ért, de a belső utazásod most kezdődik igazán. Csatlakozz hozzánk teljes tagként."
+                            : "Csatlakozz közösségünkhöz, és mélyítsd el az önismereti utazásod minden nap."
+                        }
                     </p>
                 </div>
 
@@ -78,7 +86,7 @@ export default function SubscriptionPage() {
                         <button
                             onClick={() => startCheckout(setLoading)}
                             disabled={loading || !stripeEnabled}
-                            className="w-full py-6 px-8 rounded-3xl bg-stone-900 text-white font-bold text-lg shadow-2xl shadow-stone-300 hover:bg-black transition-all disabled:opacity-60"
+                            className={`w-full py-6 px-8 rounded-3xl text-white font-bold text-lg shadow-2xl transition-all disabled:opacity-60 ${isExpired ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 'bg-stone-900 hover:bg-black shadow-stone-300'}`}
                         >
                             {loading ? 'Átirányítás a fizetéshez…' : stripeEnabled ? 'Előfizetek' : 'Előfizetés nem elérhető'}
                         </button>
@@ -94,5 +102,17 @@ export default function SubscriptionPage() {
                 </div>
             </div>
         </PageShell>
+    );
+}
+
+export default function SubscriptionPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+        }>
+            <SubscriptionContent />
+        </Suspense>
     );
 }

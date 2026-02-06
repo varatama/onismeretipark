@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { saveOnboarding, getOnboarding } from '@/lib/user';
+import { supabase } from '@/lib/supabaseClient';
+import { saveOnboarding, getOnboarding, getOrSyncProfile, Profile } from '@/lib/user';
 import { PageShell } from '@/components/ui/PageShell';
-// framer-motion not used here — removed to satisfy lint
-import { Loader2, Target, Zap, Clock, CheckCircle2 } from 'lucide-react';
+import { Loader2, Target, Zap, Clock, CheckCircle2, Users } from 'lucide-react';
 
 const FOCUS_OPTIONS = [
     { id: 'szorongas', label: 'Szorongás kezelése', icon: '🧘' },
@@ -15,9 +15,10 @@ const FOCUS_OPTIONS = [
     { id: 'stressz', label: 'Stresszmentes élet', icon: '🌊' }
 ];
 
-const LEVEL_OPTIONS = [
-    { id: 'kezdo', label: 'Kezdő', desc: 'Még csak ismerkedem az önismerettel.' },
-    { id: 'halado', label: 'Haladó', desc: 'Rendszeresen foglalkozom magammal.' }
+const PATTERN_OPTIONS = [
+    { id: 'nature', label: 'Természet', icon: '🌿', desc: 'Erdők, hegyek, nyugalom.' },
+    { id: 'cosmos', label: 'Kozmosz', icon: '🌌', desc: 'Csillagok, végtelenség, mélység.' },
+    { id: 'zen', label: 'Zen kert', icon: '🏯', desc: 'Harmónia, fegyelem, béke.' }
 ];
 
 export default function OnboardingPage() {
@@ -26,8 +27,9 @@ export default function OnboardingPage() {
 
     const [isSaving, setIsSaving] = useState(false);
 
+    const [soulRiderName, setSoulRiderName] = useState('');
+    const [patternMap, setPatternMap] = useState('nature');
     const [focus, setFocus] = useState('');
-    const [level, setLevel] = useState('kezdo');
     const [minutes, setMinutes] = useState(10);
     const [completed, setCompleted] = useState(false);
 
@@ -38,10 +40,15 @@ export default function OnboardingPage() {
         }
 
         if (user) {
+            getOrSyncProfile(user.id).then((prof: Profile | null) => {
+                if (prof) {
+                    setSoulRiderName(prof.soul_rider_name || '');
+                    setPatternMap(prof.pattern_map || 'nature');
+                }
+            });
             getOnboarding(user.id).then(data => {
                 if (data) {
                     setFocus(data.focus || '');
-                    setLevel(data.level || 'kezdo');
                     setMinutes(data.daily_minutes || 10);
                     setCompleted(data.completed || false);
                     if (data.completed) {
@@ -53,14 +60,19 @@ export default function OnboardingPage() {
     }, [user, authLoading, router]);
 
     const handleSave = async () => {
-        if (!user || !completed || !focus) return;
+        if (!user || !completed || !focus || !soulRiderName) return;
 
         setIsSaving(true);
         try {
+            // Update profile with soul rider name and pattern map
+            await supabase.from('profiles').update({
+                soul_rider_name: soulRiderName,
+                pattern_map: patternMap
+            }).eq('id', user.id);
+
             await saveOnboarding({
                 user_id: user.id,
                 focus,
-                level,
                 daily_minutes: minutes,
                 completed: true
             });
@@ -82,10 +94,51 @@ export default function OnboardingPage() {
     return (
         <PageShell
             title="Személyre szabás"
-            subtitle="Hogy a legmegfelelőbb élményt nyújthassuk."
+            subtitle="Készítsük el a Soul-rider profilodat!"
         >
-            <div className="space-y-8 px-1">
-                {/* Step 1: Focus */}
+            <div className="space-y-10 px-1 pb-32">
+
+                {/* Step 0: Soul Rider Name */}
+                <section className="space-y-4">
+                    <div className="flex items-center gap-3 text-indigo-600">
+                        <Users size={20} />
+                        <h2 className="font-bold uppercase text-[10px] tracking-widest">Hogy hívnak a Parkban?</h2>
+                    </div>
+                    <div className="bg-white p-4 rounded-2xl border-2 border-stone-100 shadow-sm">
+                        <input
+                            type="text"
+                            placeholder="Soul-rider neved..."
+                            value={soulRiderName}
+                            onChange={(e) => setSoulRiderName(e.target.value)}
+                            className="w-full text-xl font-bold text-gray-800 placeholder:text-stone-300 focus:outline-none"
+                        />
+                    </div>
+                </section>
+
+                {/* Step 1: Pattern Map */}
+                <section className="space-y-4">
+                    <div className="flex items-center gap-3 text-indigo-600">
+                        <Zap size={20} />
+                        <h2 className="font-bold uppercase text-[10px] tracking-widest">Milyen energiájú helyen érzed jól magad?</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                        {PATTERN_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.id}
+                                onClick={() => setPatternMap(opt.id)}
+                                className={`p-4 rounded-2xl border-2 text-left transition-all flex items-center gap-4 ${patternMap === opt.id ? 'border-indigo-600 bg-indigo-50/50' : 'border-stone-100 bg-white'}`}
+                            >
+                                <span className="text-2xl">{opt.icon}</span>
+                                <div>
+                                    <p className="font-bold text-gray-900">{opt.label}</p>
+                                    <p className="text-[10px] text-stone-400 mt-0.5">{opt.desc}</p>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Step 2: Focus */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-3 text-indigo-600">
                         <Target size={20} />
@@ -100,26 +153,6 @@ export default function OnboardingPage() {
                             >
                                 <span className="text-2xl">{opt.icon || '🎯'}</span>
                                 <span className="font-bold text-gray-800">{opt.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Step 2: Level */}
-                <section className="space-y-4">
-                    <div className="flex items-center gap-3 text-indigo-600">
-                        <Zap size={20} />
-                        <h2 className="font-bold uppercase text-[10px] tracking-widest">Milyen szinten állsz?</h2>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        {LEVEL_OPTIONS.map((opt) => (
-                            <button
-                                key={opt.id}
-                                onClick={() => setLevel(opt.id)}
-                                className={`p-4 rounded-2xl border-2 text-left transition-all ${level === opt.id ? 'border-indigo-600 bg-indigo-50/50' : 'border-stone-100 bg-white'}`}
-                            >
-                                <p className="font-bold text-gray-900">{opt.label}</p>
-                                <p className="text-[10px] text-stone-400 mt-1 leading-tight">{opt.desc}</p>
                             </button>
                         ))}
                     </div>
@@ -163,7 +196,7 @@ export default function OnboardingPage() {
 
                 <button
                     onClick={handleSave}
-                    disabled={isSaving || !completed || !focus}
+                    disabled={isSaving || !completed || !focus || !soulRiderName}
                     className="w-full py-5 rounded-2xl bg-stone-900 text-white font-bold text-lg shadow-xl shadow-stone-200 transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
                 >
                     {isSaving ? <Loader2 className="animate-spin mx-auto" /> : 'Kezdhetjük a Parkot! 🚀'}

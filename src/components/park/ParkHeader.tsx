@@ -1,13 +1,24 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export interface ParkHeaderProps {
-    status: 'Próba' | 'Előfizető';
+    status: 'Próba' | 'Előfizető' | 'Vendég';
 }
 
 export function ParkHeader({ status }: ParkHeaderProps) {
     const { user } = useAuth();
+
+    const [trialCount, setTrialCount] = useState(0);
+
+    useEffect(() => {
+        if (!user) {
+            import('@/lib/trial').then(m => setTrialCount(m.getTrialViews()));
+        }
+    }, [user]);
+
+    const displayStatus = status === 'Vendég' && trialCount > 0 ? `${trialCount}/2 Próba` : status;
 
     return (
         <header className="relative -mx-4 px-6 pt-10 pb-12 mb-4 overflow-hidden">
@@ -21,11 +32,14 @@ export function ParkHeader({ status }: ParkHeaderProps) {
                 </h1>
                 <span className={`
           px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest
+          transition-all duration-500
           ${status === 'Előfizető'
                         ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'bg-stone-200 text-stone-600'}
+                        : status === 'Próba' || trialCount > 0
+                            ? 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                            : 'bg-stone-200 text-stone-600'}
         `}>
-                    {status}
+                    {displayStatus}
                 </span>
             </div>
 

@@ -24,23 +24,25 @@ export default function ParkPage() {
 
     useEffect(() => {
         async function loadParkData() {
-            if (!user) return;
             try {
-                const [exps, prof, s] = await Promise.all([
-                    getExperiences(),
-                    getOrSyncProfile(user.id),
-                    getUserStats(user.id)
-                ]);
+                const exps = await getExperiences();
                 setExperiences(exps);
-                setProfile(prof);
-                setStats(s);
 
-                const pMap: Record<string, UserProgress> = {};
-                for (const exp of exps) {
-                    const progress = await getUserProgress(user.id, exp.id);
-                    if (progress) pMap[exp.id] = progress;
+                if (user) {
+                    const [prof, s] = await Promise.all([
+                        getOrSyncProfile(user.id),
+                        getUserStats(user.id)
+                    ]);
+                    setProfile(prof);
+                    setStats(s);
+
+                    const pMap: Record<string, UserProgress> = {};
+                    for (const exp of exps) {
+                        const progress = await getUserProgress(user.id, exp.id);
+                        if (progress) pMap[exp.id] = progress;
+                    }
+                    setProgressMap(pMap);
                 }
-                setProgressMap(pMap);
             } catch (err) {
                 console.error("Failed to load park data:", err);
             } finally {
@@ -48,7 +50,7 @@ export default function ParkPage() {
             }
         }
 
-        if (!authLoading && user) loadParkData();
+        if (!authLoading) loadParkData();
     }, [user, authLoading]);
 
     if (authLoading || loading) {
@@ -58,7 +60,7 @@ export default function ParkPage() {
     return (
         <PageShell>
             <div className="flex flex-col min-h-full pb-20">
-                <ParkHeader status={profile?.is_premium ? 'Előfizető' : 'Próba'} />
+                <ParkHeader status={profile?.is_premium ? 'Előfizető' : (user ? 'Próba' : 'Vendég')} />
 
                 {/* Quick Stats Grid */}
                 <section className="grid grid-cols-2 gap-4 mb-10 px-1">

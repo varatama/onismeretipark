@@ -10,6 +10,10 @@ export interface Profile {
     is_premium: boolean;
     stripe_customer_id: string | null;
     stripe_subscription_id: string | null;
+    is_trial?: boolean;
+    trial_expires_at?: string | null;
+    soul_rider_name?: string | null;
+    pattern_map?: string | null;
     created_at: string;
     updated_at: string;
 }
